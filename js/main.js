@@ -1,5 +1,6 @@
 let myLibrary = [];
 const bookCollectionContainer = document.querySelector(".book-collection-container");
+const addBookButton = document.querySelector(".add-book-btn");
 
 function bookCardBuilder(book){
   let bookCard = document.createElement("div");
@@ -57,3 +58,4 @@ myLibrary.forEach(function(book) {
   bookCardBuilder(book);
 });
 
+// Add book button 
