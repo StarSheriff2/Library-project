@@ -70,10 +70,13 @@ function validateInput() {
 
 function addBookBtn() {
   if (validateInput()) {
-    feedbackMessage.remove();
+    if (typeof feedbackMessage != "undefined" && feedbackMessage) {
+      feedbackMessage.remove();
+    }
     let newBook = new Book(titleInput.value, authorInput.value, pagesInput.value, statusInput.value);
     bookCardBuilder(newBook);
   } else {
+    if (typeof feedbackMessage != "undefined" && feedbackMessage){ return}
     feedbackMessage = document.createElement('div');
     feedbackMessage.textContent = "Please check all the fields are complete.";
     feedbackMessage.style.width = "100%";
@@ -81,6 +84,7 @@ function addBookBtn() {
     modalHeader = document.querySelector(".modal-header");
     modalTitle = document.querySelector(".modal-title");
     modalHeader.insertBefore(feedbackMessage, modalTitle);
+    
   }
 
 }
