@@ -1,6 +1,10 @@
 let myLibrary = [];
 const bookCollectionContainer = document.querySelector(".book-collection-container");
 const addBookButton = document.querySelector(".add-book-btn");
+const titleInput = document.querySelector("#title");
+const authorInput = document.querySelector("#author");
+const pagesInput = document.querySelector("#pages");
+const statusInput = document.querySelector("input[name='status']");
 
 function bookCardBuilder(book){
   let bookCard = document.createElement("div");
@@ -58,4 +62,27 @@ myLibrary.forEach(function(book) {
   bookCardBuilder(book);
 });
 
-// Add book button 
+// Add book button
+
+function validateInput() {
+  return titleInput.value && authorInput.value && pagesInput.value && statusInput.value
+}
+
+function addBookBtn() {
+  if (validateInput()) {
+    feedbackMessage.remove();
+    let newBook = new Book(titleInput.value, authorInput.value, pagesInput.value, statusInput.value);
+    bookCardBuilder(newBook);
+  } else {
+    feedbackMessage = document.createElement('div');
+    feedbackMessage.textContent = "Please check all the fields are complete.";
+    feedbackMessage.style.width = "100%";
+    feedbackMessage.classList.add("text-center", "bg-danger")
+    modalHeader = document.querySelector(".modal-header");
+    modalTitle = document.querySelector(".modal-title");
+    modalHeader.insertBefore(feedbackMessage, modalTitle);
+  }
+
+}
+
+addBookButton.addEventListener('click', addBookBtn)

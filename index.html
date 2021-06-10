@@ -26,7 +26,7 @@
   <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
-        <div class="modal-header">
+        <div class="modal-header d-flex flex-wrap">
           <h5 class="modal-title" id="exampleModalLabel">Add New Book</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
@@ -34,17 +34,17 @@
           <form action="#" method="post">
             <div class="mb-3">
               <label for="title" class="form-label">Title: </label>
-              <input type="text" name="title" id="title" class="form-control" required>
+              <input type="text" name="title" id="title" class="form-control">
               <div id="inputHelp" class="form-text">Write the title of the book.</div>
             </div>
             <div class="mb-3">
               <label for="author" class="form-label">Author: </label>
-              <input type="text" name="author" id="author" class="form-control" required>
+              <input type="text" name="author" id="author" class="form-control">
               <div id="inputHelp" class="form-text">Write the author of the book.</div>
             </div>
             <div class="mb-3">
               <label for="pages" class="form-label">Pgs: </label>
-              <input type="text" name="pages" id="pages" class="form-control" required>
+              <input type="text" name="pages" id="pages" class="form-control">
               <div id="inputHelp" class="form-text">How many pages does it have?</div>
             </div>
             <label for="status" class="form-label">Status: </label>
@@ -64,7 +64,7 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          <button type="button" class="btn btn-primary">Add</button>
+          <button type="button" class="add-book-btn btn btn-primary">Add</button>
         </div>
       </div>
     </div>
