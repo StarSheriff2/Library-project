@@ -16,6 +16,7 @@ feedbackMessage.classList.add('text-center', 'bg-danger');
 function bookCardBuilder(book) {
   const bookCard = document.createElement('div');
   bookCard.classList.add('card', 'm-2', 'card-width', 'bg-light');
+  bookCard.setAttribute('data-bookTitle', `${book.title}`);
   const bookTitle = document.createElement('h3');
   bookTitle.classList.add('text-center', 'card-header');
   const cardBody = document.createElement('div');
@@ -28,7 +29,6 @@ function bookCardBuilder(book) {
   bookStatus.classList.add('m-0');
   const bookRemoveBtn = document.createElement('button');
   bookRemoveBtn.classList.add('btn', 'btn-primary');
-  bookRemoveBtn.setAttribute('data-libId', `${myLibrary.length -1}`);
   bookRemoveBtn.setAttribute('type', 'button');
 
   bookTitle.textContent = `Title: ${book.title}`;
@@ -66,18 +66,14 @@ function addBookToLibrary(book) {
 const theHobbit = new Book('The Hobbit', 'J.R.R. Tolkien', 295, false);
 const greatGatsby = new Book('The Great Gatsby', 'Author 1', 400, true);
 const mobyDick = new Book('Moby Dick', 'Author 2', 500, false);
-const harryPotter = new Book('J. K. Rowling', 'Author 4', 600, true);
-const harryPotterr = new Book('J. K. Rowling', 'Author 4', 600, true);
+const harryPotter = new Book('Harry Potter', 'J. K. Rowling', 600, true);
+const greatExpectations = new Book('Great Expectations', 'Charles Dickens', 600, true);
 
 addBookToLibrary(theHobbit);
 addBookToLibrary(greatGatsby);
 addBookToLibrary(mobyDick);
 addBookToLibrary(harryPotter);
-addBookToLibrary(harryPotterr);
-
-myLibrary.forEach((book) => {
-  bookCardBuilder(book);
-});
+addBookToLibrary(greatExpectations);
 
 // Add book button
 
@@ -111,3 +107,14 @@ function addBookBtn() {
 }
 
 addBookButton.addEventListener('click', addBookBtn);
+
+// Remove book button
+
+function removeBook(bookTitle) {
+  const bookCard = document.querySelector(`.card[data-bookTitle='${bookTitle}']`);
+  bookCard.remove();
+  let book = myLibrary.find((book)=> book.title == `${bookTitle}`);
+  const bookLibraryIndex = myLibrary.indexOf(book);
+  myLibrary.splice(bookLibraryIndex , 1)
+}
+
