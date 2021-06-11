@@ -4,7 +4,8 @@ const addBookButton = document.querySelector('.add-book-btn');
 const titleInput = document.querySelector('#title');
 const authorInput = document.querySelector('#author');
 const pagesInput = document.querySelector('#pages');
-const statusInput = document.querySelector("input[name='status']");
+const trueRadioBtn = document.querySelector("input[id='true']");
+const falseRadioBtn = document.querySelector("input[id='false']");
 const feedbackMessage = document.createElement('div');
 const modalHeader = document.querySelector('.modal-header');
 const modalTitle = document.querySelector('.modal-title');
@@ -21,19 +22,26 @@ function bookCardBuilder(book) {
   cardBody.classList.add('card-body');
   const bookAuthor = document.createElement('p');
   const bookPages = document.createElement('p');
+  const cardFooter = document.createElement('div');
+  cardFooter.classList.add('card-footer')
   const bookStatus = document.createElement('p');
-  bookStatus.classList.add('card-footer', 'm-0');
+  bookStatus.classList.add('m-0');
+  const bookRemoveBtn = document.createElement('button');
+  bookRemoveBtn.classList.add('btn', 'btn-primary');
 
   bookTitle.textContent = `Title: ${book.title}`;
   bookAuthor.textContent = `Author: ${book.author}`;
   bookPages.textContent = `Pages: ${book.pages}`;
   bookStatus.textContent = `Status: ${book.read ? 'already read' : 'not read yet'}`;
+  bookRemoveBtn.textContent = 'Remove';
 
   bookCard.appendChild(bookTitle);
   cardBody.appendChild(bookAuthor);
   cardBody.appendChild(bookPages);
   bookCard.appendChild(cardBody);
-  bookCard.appendChild(bookStatus);
+  bookCard.appendChild(cardFooter);
+  cardFooter.appendChild(bookStatus);
+  cardFooter.appendChild(bookRemoveBtn);
   bookCollectionContainer.appendChild(bookCard);
 }
 
@@ -71,8 +79,17 @@ myLibrary.forEach((book) => {
 // Add book button
 
 function validateInput() {
-  return titleInput.value && authorInput.value && pagesInput.value && statusInput.value;
+  return titleInput.value && authorInput.value && pagesInput.value;
 }
+
+function checkStatusInput() {
+  if (trueRadioBtn.checked){
+    return true;
+  }else if(falseRadioBtn.checked){
+    return false;
+  }
+}
+
 
 function addBookBtn() {
   if (validateInput()) {
@@ -80,7 +97,7 @@ function addBookBtn() {
       feedbackMessage.remove();
     }
     const newBook = new Book(titleInput.value, authorInput.value,
-      pagesInput.value, statusInput.value);
+      pagesInput.value, checkStatusInput());
     bookCardBuilder(newBook);
   } else {
     if (feedbackMessage.parentNode === modalHeader) {
