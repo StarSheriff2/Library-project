@@ -24,7 +24,7 @@ function bookCardBuilder(book) {
   const bookAuthor = document.createElement('p');
   const bookPages = document.createElement('p');
   const cardFooter = document.createElement('div');
-  cardFooter.classList.add('card-footer')
+  cardFooter.classList.add('card-footer');
   const bookStatus = document.createElement('p');
   bookStatus.classList.add('m-0');
   const bookRemoveBtn = document.createElement('button');
@@ -64,6 +64,8 @@ function addBookToLibrary(book) {
   bookCardBuilder(book);
 }
 
+// Initial Library
+
 const theHobbit = new Book('The Hobbit', 'J.R.R. Tolkien', 295, false);
 const greatGatsby = new Book('The Great Gatsby', 'Author 1', 400, true);
 const mobyDick = new Book('Moby Dick', 'Author 2', 500, false);
@@ -83,13 +85,15 @@ function validateInput() {
 }
 
 function checkStatusInput() {
-  if (trueRadioBtn.checked){
-    return true;
-  }else if(falseRadioBtn.checked){
-    return false;
+  let status;
+  if (trueRadioBtn.checked) {
+    status = true;
   }
+  if (falseRadioBtn.checked) {
+    status = false;
+  }
+  return status;
 }
-
 
 function addBookBtn() {
   if (validateInput()) {
@@ -114,12 +118,11 @@ addBookButton.addEventListener('click', addBookBtn);
 function removeBook(bookTitle) {
   const bookCard = document.querySelector(`.card[data-bookTitle='${bookTitle}']`);
   bookCard.remove();
-  let book = myLibrary.find((book)=> book.title == `${bookTitle}`);
+  const book = myLibrary.find((book) => book.title === `${bookTitle}`);
   const bookLibraryIndex = myLibrary.indexOf(book);
-  myLibrary.splice(bookLibraryIndex , 1)
+  myLibrary.splice(bookLibraryIndex, 1);
 }
 
-removeBtnList = document.querySelectorAll('#removeBtn');
+const removeBtnList = document.querySelectorAll('#removeBtn');
 
 removeBtnList.forEach((btn) => btn.addEventListener('click', (e) => removeBook(e.originalTarget.offsetParent.dataset.booktitle)));
-
