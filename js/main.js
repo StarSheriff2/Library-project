@@ -30,6 +30,7 @@ function bookCardBuilder(book) {
   const bookRemoveBtn = document.createElement('button');
   bookRemoveBtn.classList.add('btn', 'btn-primary');
   bookRemoveBtn.setAttribute('type', 'button');
+  bookRemoveBtn.setAttribute('id', 'removeBtn');
 
   bookTitle.textContent = `Title: ${book.title}`;
   bookAuthor.textContent = `Author: ${book.author}`;
@@ -117,4 +118,8 @@ function removeBook(bookTitle) {
   const bookLibraryIndex = myLibrary.indexOf(book);
   myLibrary.splice(bookLibraryIndex , 1)
 }
+
+removeBtnList = document.querySelectorAll('#removeBtn');
+
+removeBtnList.forEach((btn) => btn.addEventListener('click', (e) => removeBook(e.originalTarget.offsetParent.dataset.booktitle)));
 
