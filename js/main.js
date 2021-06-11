@@ -28,6 +28,8 @@ function bookCardBuilder(book) {
   bookStatus.classList.add('m-0');
   const bookRemoveBtn = document.createElement('button');
   bookRemoveBtn.classList.add('btn', 'btn-primary');
+  bookRemoveBtn.setAttribute('data-libId', `${myLibrary.length -1}`);
+  bookRemoveBtn.setAttribute('type', 'button');
 
   bookTitle.textContent = `Title: ${book.title}`;
   bookAuthor.textContent = `Author: ${book.author}`;
@@ -58,6 +60,7 @@ Book.prototype.info = function info() {
 
 function addBookToLibrary(book) {
   myLibrary.push(book);
+  bookCardBuilder(book);
 }
 
 const theHobbit = new Book('The Hobbit', 'J.R.R. Tolkien', 295, false);
@@ -98,7 +101,7 @@ function addBookBtn() {
     }
     const newBook = new Book(titleInput.value, authorInput.value,
       pagesInput.value, checkStatusInput());
-    bookCardBuilder(newBook);
+    addBookToLibrary(newBook);
   } else {
     if (feedbackMessage.parentNode === modalHeader) {
       return;
