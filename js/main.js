@@ -13,6 +13,66 @@ feedbackMessage.textContent = 'Please check all the fields are complete.';
 feedbackMessage.style.width = '100%';
 feedbackMessage.classList.add('text-center', 'bg-danger');
 
+function bookStatusText(status) {
+  return `Status: ${status ? 'already read' : 'not read yet'}`;
+}
+
+// Book Constructor and Prototype Property
+function Book(title, author, pages, read) {
+  this.title = title;
+  this.author = author;
+  this.pages = pages;
+  this.read = read;
+}
+
+Book.prototype.info = function info() {
+  return `${this.title} by ${this.author}, ${this.pages} pages, ${this.read ? 'already read' : 'not read yet'}.`;
+};
+
+Book.prototype.toggleStatus = function toggleStatus() {
+  if (this.read) {
+    this.read = false;
+  } else {
+    this.read = true;
+  }
+};
+
+// Remove Book Button Event
+
+function getBookObj(title) {
+  return myLibrary.find((book) => book.title === `${title}`);
+}
+
+function getBookCard(title) {
+  return document.querySelector(`.card[data-bookTitle='${title}']`);
+}
+
+function removeBook(bookTitle) {
+  const bookCard = getBookCard(bookTitle);
+  bookCard.remove();
+  const book = getBookObj(bookTitle);
+  const bookLibraryIndex = myLibrary.indexOf(book);
+  myLibrary.splice(bookLibraryIndex, 1);
+}
+
+function removeBtnClickEvent(button) {
+  button.addEventListener('click', (e) => removeBook(e.originalTarget.offsetParent.dataset.booktitle));
+}
+
+// Status Switch Event
+
+function changeBookStatusEvent(statusSwitch) {
+  statusSwitch.addEventListener('click', (e) => {
+    const book = getBookObj(e.originalTarget.offsetParent.dataset.booktitle);
+    book.toggleStatus();
+    const bookCard = getBookCard(book.title);
+    const bookStatus = bookCard.lastChild.firstChild.firstChild;
+    bookStatus.textContent = bookStatusText(book.read);
+  });
+}
+
+// Book Card Builder
+
 function bookCardBuilder(book) {
   const bookCard = document.createElement('div');
   bookCard.classList.add('card', 'm-2', 'card-width', 'bg-light');
@@ -25,17 +85,24 @@ function bookCardBuilder(book) {
   const bookPages = document.createElement('p');
   const cardFooter = document.createElement('div');
   cardFooter.classList.add('card-footer');
+  const statusDiv = document.createElement('div');
+  statusDiv.classList.add('d-flex', 'justify-content-between', 'align-items-center', 'mb-3');
   const bookStatus = document.createElement('p');
-  bookStatus.classList.add('m-0');
+  bookStatus.classList.add('m-0', 'book-status');
+  const statusSwitch = document.createElement('button');
+  statusSwitch.classList.add('btn', 'btn-outline-primary', 'btn-sm', 'status-switch-btn');
+  statusSwitch.setAttribute('type', 'button');
+  changeBookStatusEvent(statusSwitch);
   const bookRemoveBtn = document.createElement('button');
   bookRemoveBtn.classList.add('btn', 'btn-primary');
   bookRemoveBtn.setAttribute('type', 'button');
-  bookRemoveBtn.setAttribute('id', 'removeBtn');
+  removeBtnClickEvent(bookRemoveBtn);
 
   bookTitle.textContent = `Title: ${book.title}`;
   bookAuthor.textContent = `Author: ${book.author}`;
   bookPages.textContent = `Pages: ${book.pages}`;
-  bookStatus.textContent = `Status: ${book.read ? 'already read' : 'not read yet'}`;
+  bookStatus.textContent = bookStatusText(book.read);
+  statusSwitch.textContent = 'Change';
   bookRemoveBtn.textContent = 'Remove';
 
   bookCard.appendChild(bookTitle);
@@ -43,42 +110,19 @@ function bookCardBuilder(book) {
   cardBody.appendChild(bookPages);
   bookCard.appendChild(cardBody);
   bookCard.appendChild(cardFooter);
-  cardFooter.appendChild(bookStatus);
+  cardFooter.appendChild(statusDiv);
+  statusDiv.appendChild(bookStatus);
+  statusDiv.appendChild(statusSwitch);
   cardFooter.appendChild(bookRemoveBtn);
   bookCollectionContainer.appendChild(bookCard);
 }
 
-function Book(title, author, pages, read) {
-  this.title = title;
-  this.author = author;
-  this.pages = pages;
-  this.read = read;
-}
-
-Book.prototype.info = function info() {
-  return `${this.title} by ${this.author}, ${this.pages} pages, ${this.read ? 'already read' : 'not read yet'}.`;
-};
+// Add book button
 
 function addBookToLibrary(book) {
   myLibrary.push(book);
   bookCardBuilder(book);
 }
-
-// Initial Library
-
-const theHobbit = new Book('The Hobbit', 'J.R.R. Tolkien', 295, false);
-const greatGatsby = new Book('The Great Gatsby', 'Author 1', 400, true);
-const mobyDick = new Book('Moby Dick', 'Author 2', 500, false);
-const harryPotter = new Book('Harry Potter', 'J. K. Rowling', 600, true);
-const greatExpectations = new Book('Great Expectations', 'Charles Dickens', 600, true);
-
-addBookToLibrary(theHobbit);
-addBookToLibrary(greatGatsby);
-addBookToLibrary(mobyDick);
-addBookToLibrary(harryPotter);
-addBookToLibrary(greatExpectations);
-
-// Add book button
 
 function validateInput() {
   return titleInput.value && authorInput.value && pagesInput.value;
@@ -111,18 +155,18 @@ function addBookBtn() {
   }
 }
 
+// Initial Library
+
+const theHobbit = new Book('The Hobbit', 'J.R.R. Tolkien', 295, false);
+const greatGatsby = new Book('The Great Gatsby', 'Author 1', 400, true);
+const mobyDick = new Book('Moby Dick', 'Author 2', 500, false);
+const harryPotter = new Book('Harry Potter', 'J. K. Rowling', 600, true);
+const greatExpectations = new Book('Great Expectations', 'Charles Dickens', 600, true);
+
+addBookToLibrary(theHobbit);
+addBookToLibrary(greatGatsby);
+addBookToLibrary(mobyDick);
+addBookToLibrary(harryPotter);
+addBookToLibrary(greatExpectations);
+
 addBookButton.addEventListener('click', addBookBtn);
-
-// Remove book button
-
-function removeBook(bookTitle) {
-  const bookCard = document.querySelector(`.card[data-bookTitle='${bookTitle}']`);
-  bookCard.remove();
-  const book = myLibrary.find((book) => book.title === `${bookTitle}`);
-  const bookLibraryIndex = myLibrary.indexOf(book);
-  myLibrary.splice(bookLibraryIndex, 1);
-}
-
-const removeBtnList = document.querySelectorAll('#removeBtn');
-
-removeBtnList.forEach((btn) => btn.addEventListener('click', (e) => removeBook(e.originalTarget.offsetParent.dataset.booktitle)));
