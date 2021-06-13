@@ -56,7 +56,7 @@ function removeBook(bookTitle) {
 }
 
 function removeBtnClickEvent(button) {
-  button.addEventListener('click', (e) => removeBook(e.originalTarget.offsetParent.dataset.booktitle));
+  button.addEventListener('click', (e) => removeBook(e.srcElement.offsetParent.dataset.booktitle));
 }
 
 // Status Switch Event
