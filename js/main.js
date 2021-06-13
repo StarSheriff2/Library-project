@@ -14,7 +14,11 @@ feedbackMessage.style.width = '100%';
 feedbackMessage.classList.add('text-center', 'bg-danger');
 
 function bookStatusText(status) {
-  return `Status: ${status ? 'already read' : 'not read yet'}`;
+  return `${status ? 'Already Read' : 'Not Read'}`;
+}
+
+function toggleBtnStyle(btn) {
+  btn.classList.toggle('active');
 }
 
 // Book Constructor and Prototype Property
@@ -66,8 +70,9 @@ function changeBookStatusEvent(statusSwitch) {
     const book = getBookObj(e.srcElement.offsetParent.dataset.booktitle);
     book.toggleStatus();
     const bookCard = getBookCard(book.title);
-    const bookStatus = bookCard.lastChild.firstChild.firstChild;
-    bookStatus.textContent = bookStatusText(book.read);
+    const statusSwitch = bookCard.lastChild.firstChild.lastChild;
+    statusSwitch.textContent = bookStatusText(book.read);
+    toggleBtnStyle(statusSwitch);
   });
 }
 
@@ -86,11 +91,11 @@ function bookCardBuilder(book) {
   const cardFooter = document.createElement('div');
   cardFooter.classList.add('card-footer');
   const statusDiv = document.createElement('div');
-  statusDiv.classList.add('d-flex', 'justify-content-between', 'align-items-center', 'mb-3');
+  statusDiv.classList.add('d-flex', 'justify-content-start', 'align-items-center', 'mb-3');
   const bookStatus = document.createElement('p');
-  bookStatus.classList.add('m-0', 'book-status');
+  bookStatus.classList.add('m-0', 'me-4');
   const statusSwitch = document.createElement('button');
-  statusSwitch.classList.add('btn', 'btn-outline-primary', 'btn-sm', 'status-switch-btn');
+  statusSwitch.classList.add('btn', 'btn-outline-secondary', 'btn-sm', 'inactive');
   statusSwitch.setAttribute('type', 'button');
   changeBookStatusEvent(statusSwitch);
   const bookRemoveBtn = document.createElement('button');
@@ -101,8 +106,9 @@ function bookCardBuilder(book) {
   bookTitle.textContent = `Title: ${book.title}`;
   bookAuthor.textContent = `Author: ${book.author}`;
   bookPages.textContent = `Pages: ${book.pages}`;
-  bookStatus.textContent = bookStatusText(book.read);
-  statusSwitch.textContent = 'Change';
+  bookStatus.textContent =  'Status:';
+  statusSwitch.textContent = bookStatusText(book.read);
+  if (book.read) toggleBtnStyle(statusSwitch);
   bookRemoveBtn.textContent = 'Remove';
 
   bookCard.appendChild(bookTitle);
