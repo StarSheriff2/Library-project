@@ -63,7 +63,7 @@ function removeBtnClickEvent(button) {
 
 function changeBookStatusEvent(statusSwitch) {
   statusSwitch.addEventListener('click', (e) => {
-    const book = getBookObj(e.originalTarget.offsetParent.dataset.booktitle);
+    const book = getBookObj(e.srcElement.offsetParent.dataset.booktitle);
     book.toggleStatus();
     const bookCard = getBookCard(book.title);
     const bookStatus = bookCard.lastChild.firstChild.firstChild;
