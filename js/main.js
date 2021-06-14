@@ -1,16 +1,17 @@
 const myLibrary = [];
 const bookCollectionContainer = document.querySelector('.book-collection-container');
-const addBookButton = document.querySelector('.add-book-btn');
+const modalTitle = document.querySelector('.modal-title');
+const feedbackMessage = document.createElement('div');
+const modalHeader = document.querySelector('.modal-header');
 const titleInput = document.querySelector('#title');
 const authorInput = document.querySelector('#author');
 const pagesInput = document.querySelector('#pages');
 const trueRadioBtn = document.querySelector("input[id='true']");
 const falseRadioBtn = document.querySelector("input[id='false']");
-const container = document.querySelector('#exampleModal');
-const myModal = new bootstrap.Modal(container);
-const feedbackMessage = document.createElement('div');
-const modalHeader = document.querySelector('.modal-header');
-const modalTitle = document.querySelector('.modal-title');
+const addBookButton = document.querySelector('.add-book-btn');
+/* const modalContainer = document.querySelector('#exampleModal');
+const myModal = new bootstrap.Modal(modalContainer); */
+const toggleModalLink = document.querySelector('#toggleModalLink');
 feedbackMessage.textContent = 'Please check all fields have been completed.';
 feedbackMessage.style.width = '100%';
 feedbackMessage.classList.add('text-center', 'bg-danger');
@@ -149,6 +150,17 @@ function checkStatusInput() {
   return status;
 }
 
+function toggleModal(toggleModalLink, evName) {
+  toggleModalLink.dispatchEvent(new CustomEvent(evName, {}));
+}
+
+function clearInputs() {
+  titleInput.value = '';
+  authorInput.value = '';
+  pagesInput.value = '';
+  falseRadioBtn.checked = true;
+}
+
 function addBookBtn() {
   if (validateInput()) {
     if (feedbackMessage.parentNode === modalHeader) {
@@ -157,7 +169,8 @@ function addBookBtn() {
     const newBook = new Book(titleInput.value, authorInput.value,
       pagesInput.value, checkStatusInput());
     addBookToLibrary(newBook);
-    myModal.hide();
+    clearInputs();
+    toggleModal(toggleModalLink, 'click');
   } else {
     if (feedbackMessage.parentNode === modalHeader) {
       return;
