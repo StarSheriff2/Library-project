@@ -9,20 +9,14 @@ const pagesInput = document.querySelector('#pages');
 const trueRadioBtn = document.querySelector("input[id='true']");
 const falseRadioBtn = document.querySelector("input[id='false']");
 const addBookButton = document.querySelector('.add-book-btn');
-/* const modalContainer = document.querySelector('#exampleModal');
-const myModal = new bootstrap.Modal(modalContainer); */
 const toggleModalLink = document.querySelector('#toggleModalLink');
 feedbackMessage.textContent = 'Please check all fields have been completed.';
 feedbackMessage.style.width = '100%';
 feedbackMessage.classList.add('text-center', 'bg-danger');
 
-function bookStatusText(status) {
-  return `${status ? 'Already Read' : 'Not Read'}`;
-}
+const bookStatusText = (status) => `${status ? 'Already Read' : 'Not Read'}`;
 
-function toggleBtnStyle(btn) {
-  btn.classList.toggle('active');
-}
+const toggleBtnStyle = (btn) => btn.classList.toggle('active');
 
 // Book Constructor and Prototype Property
 function Book(title, author, pages, read) {
@@ -46,29 +40,25 @@ Book.prototype.toggleStatus = function toggleStatus() {
 
 // Remove Book Button Event
 
-function getBookObj(title) {
-  return myLibrary.find((book) => book.title === `${title}`);
-}
+const getBookObj = (title) => myLibrary.find((book) => book.title === `${title}`);
 
-function getBookCard(title) {
-  return document.querySelector(`.card[data-bookTitle='${title}']`);
-}
+const getBookCard = (title) => document.querySelector(`.card[data-bookTitle='${title}']`);
 
-function removeBook(bookTitle) {
+const removeBook = (bookTitle) => {
   const bookCard = getBookCard(bookTitle);
   bookCard.remove();
   const book = getBookObj(bookTitle);
   const bookLibraryIndex = myLibrary.indexOf(book);
   myLibrary.splice(bookLibraryIndex, 1);
-}
+};
 
-function removeBtnClickEvent(button) {
+const removeBtnClickEvent = (button) => {
   button.addEventListener('click', (e) => removeBook(e.srcElement.offsetParent.dataset.booktitle));
-}
+};
 
 // Status Switch Event
 
-function changeBookStatusEvent(statusSwitch) {
+const changeBookStatusEvent = (statusSwitch) => {
   statusSwitch.addEventListener('click', (e) => {
     const book = getBookObj(e.srcElement.offsetParent.dataset.booktitle);
     book.toggleStatus();
@@ -77,11 +67,11 @@ function changeBookStatusEvent(statusSwitch) {
     statusSwitch.textContent = bookStatusText(book.read);
     toggleBtnStyle(statusSwitch);
   });
-}
+};
 
 // Book Card Builder
 
-function bookCardBuilder(book) {
+const bookCardBuilder = (book) => {
   const bookCard = document.createElement('div');
   bookCard.classList.add('card', 'm-2', 'card-width', 'bg-light');
   bookCard.setAttribute('data-bookTitle', `${book.title}`);
@@ -124,22 +114,20 @@ function bookCardBuilder(book) {
   statusDiv.appendChild(statusSwitch);
   cardFooter.appendChild(bookRemoveBtn);
   bookCollectionContainer.appendChild(bookCard);
-}
+};
 
 // Add book button
 
-function addBookToLibrary(book) {
+const addBookToLibrary = (book) => {
   myLibrary.push(book);
   bookCardBuilder(book);
-}
+};
 
-function validateInput() {
-  return titleInput.value && authorInput.value && pagesInput.value
-    && parseInt(pagesInput.value, 10)
-    && pagesInput.value.length === String(parseInt(pagesInput.value, 10)).length;
-}
+const validateInput = () => titleInput.value
+  && authorInput.value && pagesInput.value && parseInt(pagesInput.value, 10)
+  && pagesInput.value.length === String(parseInt(pagesInput.value, 10)).length;
 
-function checkStatusInput() {
+const checkStatusInput = () => {
   let status;
   if (trueRadioBtn.checked) {
     status = true;
@@ -148,20 +136,20 @@ function checkStatusInput() {
     status = false;
   }
   return status;
-}
+};
 
-function toggleModal(toggleModalLink, evName) {
+const toggleModal = (toggleModalLink, evName) => {
   toggleModalLink.dispatchEvent(new CustomEvent(evName, {}));
-}
+};
 
-function clearInputs() {
+const clearInputs = () => {
   titleInput.value = '';
   authorInput.value = '';
   pagesInput.value = '';
   falseRadioBtn.checked = true;
-}
+};
 
-function addBookBtn() {
+const addBookBtn = () => {
   if (validateInput()) {
     if (feedbackMessage.parentNode === modalHeader) {
       feedbackMessage.remove();
@@ -177,7 +165,7 @@ function addBookBtn() {
     }
     modalHeader.insertBefore(feedbackMessage, modalTitle);
   }
-}
+};
 
 // Initial Library
 
