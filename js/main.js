@@ -1,4 +1,33 @@
-const myLibrary = [];
+let myLibrary = [];
+
+// Check Browser for LocalStorage Support and Availability
+// Code source: https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API/Using_the_Web_Storage_API
+
+function storageAvailable(type) {
+  var storage;
+  try {
+      storage = window[type];
+      var x = '__storage_test__';
+      storage.setItem(x, x);
+      storage.removeItem(x);
+      return true;
+  }
+  catch(e) {
+      return e instanceof DOMException && (
+          // everything except Firefox
+          e.code === 22 ||
+          // Firefox
+          e.code === 1014 ||
+          // test name field too, because code might not be present
+          // everything except Firefox
+          e.name === 'QuotaExceededError' ||
+          // Firefox
+          e.name === 'NS_ERROR_DOM_QUOTA_REACHED') &&
+          // acknowledge QuotaExceededError only if there's something already stored
+          (storage && storage.length !== 0);
+  }
+}
+
 const bookCollectionContainer = document.querySelector('.book-collection-container');
 const modalTitle = document.querySelector('.modal-title');
 const feedbackMessage = document.createElement('div');
@@ -61,6 +90,7 @@ const removeBtnClickEvent = (button) => {
 const changeBookStatusEvent = (statusSwitch) => {
   statusSwitch.addEventListener('click', (e) => {
     const book = getBookObj(e.srcElement.offsetParent.dataset.booktitle);
+    console.log(book);
     book.toggleStatus();
     const bookCard = getBookCard(book.title);
     const statusSwitch = bookCard.lastChild.firstChild.lastChild;
@@ -167,18 +197,46 @@ const addBookBtn = () => {
   }
 };
 
-// Initial Library
+Storage.prototype.setObj = function(key, obj) {
+  return this.setItem(key, JSON.stringify(obj))
+};
 
-const theHobbit = new Book('The Hobbit', 'J.R.R. Tolkien', 295, false);
-const greatGatsby = new Book('The Great Gatsby', 'Author 1', 400, true);
-const mobyDick = new Book('Moby Dick', 'Author 2', 500, false);
-const harryPotter = new Book('Harry Potter', 'J. K. Rowling', 600, true);
-const greatExpectations = new Book('Great Expectations', 'Charles Dickens', 600, true);
+Storage.prototype.getObj = function(key) {
+  return JSON.parse(this.getItem(key))
+};
 
-addBookToLibrary(theHobbit);
-addBookToLibrary(greatGatsby);
-addBookToLibrary(mobyDick);
-addBookToLibrary(harryPotter);
-addBookToLibrary(greatExpectations);
+const loadStorageLibrary = (storedLibrary) => {
+  storedLibrary.forEach((book) => {
+    const newBook = new Book(book.title, book.author,
+      book.pages, book.read);
+    addBookToLibrary(newBook);
+  });
+};
+
+const seedLibrary = () => {
+  // Initial Library
+  const theHobbit = new Book('The Hobbit', 'J.R.R. Tolkien', 295, false);
+  const greatGatsby = new Book('The Great Gatsby', 'Author 1', 400, true);
+  const mobyDick = new Book('Moby Dick', 'Author 2', 500, false);
+  const harryPotter = new Book('Harry Potter', 'J. K. Rowling', 600, true);
+  const greatExpectations = new Book('Great Expectations', 'Charles Dickens', 600, true);
+
+  addBookToLibrary(theHobbit);
+  addBookToLibrary(greatGatsby);
+  addBookToLibrary(mobyDick);
+  addBookToLibrary(harryPotter);
+  addBookToLibrary(greatExpectations);
+};
+
+if (storageAvailable('localStorage')) {
+  if(localStorage.length === 0) {
+    if (myLibrary.length == 0) { seedLibrary(); }
+    localStorage.setObj('myLibrary', myLibrary);
+  } else {
+    loadStorageLibrary(localStorage.getObj('myLibrary'));
+  }
+} else {
+  seedLibrary();
+}
 
 addBookButton.addEventListener('click', addBookBtn);
