@@ -6,10 +6,12 @@ const authorInput = document.querySelector('#author');
 const pagesInput = document.querySelector('#pages');
 const trueRadioBtn = document.querySelector("input[id='true']");
 const falseRadioBtn = document.querySelector("input[id='false']");
+const container = document.querySelector('#exampleModal');
+const myModal = new bootstrap.Modal(container);
 const feedbackMessage = document.createElement('div');
 const modalHeader = document.querySelector('.modal-header');
 const modalTitle = document.querySelector('.modal-title');
-feedbackMessage.textContent = 'Please check all the fields are complete.';
+feedbackMessage.textContent = 'Please check all fields have been completed.';
 feedbackMessage.style.width = '100%';
 feedbackMessage.classList.add('text-center', 'bg-danger');
 
@@ -106,7 +108,7 @@ function bookCardBuilder(book) {
   bookTitle.textContent = `Title: ${book.title}`;
   bookAuthor.textContent = `Author: ${book.author}`;
   bookPages.textContent = `Pages: ${book.pages}`;
-  bookStatus.textContent =  'Status:';
+  bookStatus.textContent = 'Status:';
   statusSwitch.textContent = bookStatusText(book.read);
   if (book.read) toggleBtnStyle(statusSwitch);
   bookRemoveBtn.textContent = 'Remove';
@@ -131,7 +133,7 @@ function addBookToLibrary(book) {
 }
 
 function validateInput() {
-  return titleInput.value && authorInput.value && pagesInput.value;
+  return titleInput.value && authorInput.value && pagesInput.value && parseInt(pagesInput.value);
 }
 
 function checkStatusInput() {
@@ -153,6 +155,7 @@ function addBookBtn() {
     const newBook = new Book(titleInput.value, authorInput.value,
       pagesInput.value, checkStatusInput());
     addBookToLibrary(newBook);
+    myModal.hide();
   } else {
     if (feedbackMessage.parentNode === modalHeader) {
       return;
