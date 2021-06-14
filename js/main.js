@@ -133,7 +133,9 @@ function addBookToLibrary(book) {
 }
 
 function validateInput() {
-  return titleInput.value && authorInput.value && pagesInput.value && parseInt(pagesInput.value);
+  return titleInput.value && authorInput.value && pagesInput.value
+    && parseInt(pagesInput.value, 10)
+    && pagesInput.value.length === String(parseInt(pagesInput.value, 10)).length;
 }
 
 function checkStatusInput() {
