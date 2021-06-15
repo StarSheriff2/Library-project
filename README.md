@@ -1,20 +1,24 @@
-![](https://img.shields.io/badge/Microverse-blueviolet)
+
 
 # Library Project
 
-> This is a simple JS library app that allows users to add and remove books to their collection.
+> This is a simple JS library app that allows users to add and remove books to their collection. The Storage API stores the user data in their browser.
 
 ![screenshot](./app_screenshot.png)
+
+We built this project using Bootstrap and Vanilla JS. We made use of the Storage API to store data across browsing sessions.
 
 Features:
 - add a book to the library
 - remove a book
 - toggle the status of a book between two states: already read and not read yet
-- return information about a book through the **info** function of a book object
+- return information about a book through the **info** function of a book object (only available via console)
+- Data persistence in a browser through local storage
 
 ## Built With
 
 - HTML, CSS, JS
+- Storage API in the browser
 - Bootstrap
 - ESLint, Stylint, WebHint
 - VS Code
