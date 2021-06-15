@@ -1,0 +1,12 @@
+.card-width {
+  width: 300px;
+}
+
+.inactive {
+  background-color: transparent;
+  opacity: 0.65;
+}
+
+.active {
+  opacity: 1;
+}
