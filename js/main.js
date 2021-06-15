@@ -79,6 +79,7 @@ const removeBook = (bookTitle) => {
   const book = getBookObj(bookTitle);
   const bookLibraryIndex = myLibrary.indexOf(book);
   myLibrary.splice(bookLibraryIndex, 1);
+  updateStorage();
 };
 
 const removeBtnClickEvent = (button) => {
@@ -91,11 +92,11 @@ const changeBookStatusEvent = (statusSwitch) => {
   statusSwitch.addEventListener('click', (e) => {
     const book = getBookObj(e.srcElement.offsetParent.dataset.booktitle);
     book.toggleStatus();
+    updateStorage();
     const bookCard = getBookCard(book.title);
     const statusSwitch = bookCard.lastChild.firstChild.lastChild;
     statusSwitch.textContent = bookStatusText(book.read);
     toggleBtnStyle(statusSwitch);
-    console.log(myLibrary.find((bookA) => bookA.title === book.title));
   });
 };
 
@@ -150,6 +151,7 @@ const bookCardBuilder = (book) => {
 
 const addBookToLibrary = (book) => {
   myLibrary.push(book);
+  updateStorage();
   bookCardBuilder(book);
 };
 
@@ -228,10 +230,12 @@ const seedLibrary = () => {
   addBookToLibrary(greatExpectations);
 };
 
+const updateStorage = () => localStorage.setObj('myLibrary', myLibrary);
+
 if (storageAvailable('localStorage')) {
   if(localStorage.length === 0) {
     if (myLibrary.length == 0) { seedLibrary(); }
-    localStorage.setObj('myLibrary', myLibrary);
+    updateStorage();
   } else {
     loadStorageLibrary(localStorage.getObj('myLibrary'));
   }
@@ -240,4 +244,3 @@ if (storageAvailable('localStorage')) {
 }
 
 addBookButton.addEventListener('click', addBookBtn);
-myLibrary.addEventListener('change', console.log('Hi'));
