@@ -90,12 +90,12 @@ const removeBtnClickEvent = (button) => {
 const changeBookStatusEvent = (statusSwitch) => {
   statusSwitch.addEventListener('click', (e) => {
     const book = getBookObj(e.srcElement.offsetParent.dataset.booktitle);
-    console.log(book);
     book.toggleStatus();
     const bookCard = getBookCard(book.title);
     const statusSwitch = bookCard.lastChild.firstChild.lastChild;
     statusSwitch.textContent = bookStatusText(book.read);
     toggleBtnStyle(statusSwitch);
+    console.log(myLibrary.find((bookA) => bookA.title === book.title));
   });
 };
 
@@ -240,3 +240,4 @@ if (storageAvailable('localStorage')) {
 }
 
 addBookButton.addEventListener('click', addBookBtn);
+myLibrary.addEventListener('change', console.log('Hi'));
