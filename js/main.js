@@ -1,32 +1,41 @@
-let myLibrary = [];
+const myLibrary = [];
 
 // Check Browser for LocalStorage Support and Availability
 // Code source: https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API/Using_the_Web_Storage_API
 
 function storageAvailable(type) {
-  var storage;
+  let storage;
   try {
-      storage = window[type];
-      var x = '__storage_test__';
-      storage.setItem(x, x);
-      storage.removeItem(x);
-      return true;
-  }
-  catch(e) {
-      return e instanceof DOMException && (
-          // everything except Firefox
-          e.code === 22 ||
-          // Firefox
-          e.code === 1014 ||
-          // test name field too, because code might not be present
-          // everything except Firefox
-          e.name === 'QuotaExceededError' ||
-          // Firefox
-          e.name === 'NS_ERROR_DOM_QUOTA_REACHED') &&
-          // acknowledge QuotaExceededError only if there's something already stored
-          (storage && storage.length !== 0);
+    storage = window[type];
+    const x = '__storage_test__';
+    storage.setItem(x, x);
+    storage.removeItem(x);
+    return true;
+  } catch (e) {
+    return e instanceof DOMException && (
+      // everything except Firefox
+      e.code === 22
+      // Firefox
+      || e.code === 1014
+      // test name field too, because code might not be present
+      // everything except Firefox
+      || e.name === 'QuotaExceededError'
+      // Firefox
+      || e.name === 'NS_ERROR_DOM_QUOTA_REACHED')
+      // acknowledge QuotaExceededError only if there's something already stored
+      && (storage && storage.length !== 0);
   }
 }
+
+Storage.prototype.setObj = function setObj(key, obj) {
+  return this.setItem(key, JSON.stringify(obj));
+};
+
+Storage.prototype.getObj = function getObj(key) {
+  return JSON.parse(this.getItem(key));
+};
+
+const updateStorage = () => localStorage.setObj('myLibrary', myLibrary);
 
 const bookCollectionContainer = document.querySelector('.book-collection-container');
 const modalTitle = document.querySelector('.modal-title');
@@ -199,13 +208,7 @@ const addBookBtn = () => {
   }
 };
 
-Storage.prototype.setObj = function(key, obj) {
-  return this.setItem(key, JSON.stringify(obj))
-};
-
-Storage.prototype.getObj = function(key) {
-  return JSON.parse(this.getItem(key))
-};
+// Load Content
 
 const loadStorageLibrary = (storedLibrary) => {
   storedLibrary.forEach((book) => {
@@ -230,11 +233,9 @@ const seedLibrary = () => {
   addBookToLibrary(greatExpectations);
 };
 
-const updateStorage = () => localStorage.setObj('myLibrary', myLibrary);
-
 if (storageAvailable('localStorage')) {
-  if(localStorage.length === 0) {
-    if (myLibrary.length == 0) { seedLibrary(); }
+  if (localStorage.length === 0) {
+    if (myLibrary.length === 0) { seedLibrary(); }
     updateStorage();
   } else {
     loadStorageLibrary(localStorage.getObj('myLibrary'));
