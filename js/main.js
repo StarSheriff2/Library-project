@@ -13,17 +13,21 @@ function storageAvailable(type) {
     return true;
   } catch (e) {
     return e instanceof DOMException && (
-      // everything except Firefox
-      e.code === 22
-      // Firefox
-      || e.code === 1014
-      // test name field too, because code might not be present
-      // everything except Firefox
-      || e.name === 'QuotaExceededError'
-      // Firefox
-      || e.name === 'NS_ERROR_DOM_QUOTA_REACHED')
+        // everything except Firefox
+        e.code === 22
+        // Firefox
+        ||
+        e.code === 1014
+        // test name field too, because code might not be present
+        // everything except Firefox
+        ||
+        e.name === 'QuotaExceededError'
+        // Firefox
+        ||
+        e.name === 'NS_ERROR_DOM_QUOTA_REACHED')
       // acknowledge QuotaExceededError only if there's something already stored
-      && (storage && storage.length !== 0);
+      &&
+      (storage && storage.length !== 0);
   }
 }
 
@@ -158,15 +162,15 @@ const bookCardBuilder = (book) => {
 
 // Add book button
 
-const addBookToLibrary = (book) => {
+const addBookToLibrary = (book, loadingStorage) => {
   myLibrary.push(book);
-  updateStorage();
+  if (!loadingStorage) updateStorage();
   bookCardBuilder(book);
 };
 
-const validateInput = () => titleInput.value
-  && authorInput.value && pagesInput.value && parseInt(pagesInput.value, 10)
-  && pagesInput.value.length === String(parseInt(pagesInput.value, 10)).length;
+const validateInput = () => titleInput.value &&
+  authorInput.value && pagesInput.value && parseInt(pagesInput.value, 10) &&
+  pagesInput.value.length === String(parseInt(pagesInput.value, 10)).length;
 
 const checkStatusInput = () => {
   let status;
@@ -197,7 +201,7 @@ const addBookBtn = () => {
     }
     const newBook = new Book(titleInput.value, authorInput.value,
       pagesInput.value, checkStatusInput());
-    addBookToLibrary(newBook);
+    addBookToLibrary(newBook, false);
     clearInputs();
     toggleModal(toggleModalLink, 'click');
   } else {
@@ -214,7 +218,7 @@ const loadStorageLibrary = (storedLibrary) => {
   storedLibrary.forEach((book) => {
     const newBook = new Book(book.title, book.author,
       book.pages, book.read);
-    addBookToLibrary(newBook);
+    addBookToLibrary(newBook, true);
   });
 };
 
@@ -226,16 +230,18 @@ const seedLibrary = () => {
   const harryPotter = new Book('Harry Potter', 'J. K. Rowling', 600, true);
   const greatExpectations = new Book('Great Expectations', 'Charles Dickens', 600, true);
 
-  addBookToLibrary(theHobbit);
-  addBookToLibrary(greatGatsby);
-  addBookToLibrary(mobyDick);
-  addBookToLibrary(harryPotter);
-  addBookToLibrary(greatExpectations);
+  addBookToLibrary(theHobbit, false);
+  addBookToLibrary(greatGatsby, false);
+  addBookToLibrary(mobyDick, false);
+  addBookToLibrary(harryPotter, false);
+  addBookToLibrary(greatExpectations, false);
 };
 
 if (storageAvailable('localStorage')) {
   if (localStorage.length === 0) {
-    if (myLibrary.length === 0) { seedLibrary(); }
+    if (myLibrary.length === 0) {
+      seedLibrary();
+    }
     updateStorage();
   } else {
     loadStorageLibrary(localStorage.getObj('myLibrary'));
