@@ -22,8 +22,8 @@ function storageAvailable(type) {
       || e.name === 'QuotaExceededError'
       // Firefox
       || e.name === 'NS_ERROR_DOM_QUOTA_REACHED')
-      // acknowledge QuotaExceededError only if there's something already stored
-      && (storage && storage.length !== 0);
+    // acknowledge QuotaExceededError only if there's something already stored
+    && (storage && storage.length !== 0);
   }
 }
 
@@ -56,186 +56,206 @@ const bookStatusText = (status) => `${status ? 'Already Read' : 'Not Read'}`;
 
 const toggleBtnStyle = (btn) => btn.classList.toggle('active');
 
-// Book Constructor and Prototype Property
-function Book(title, author, pages, read) {
-  this.title = title;
-  this.author = author;
-  this.pages = pages;
-  this.read = read;
-}
+// Book Module
 
-Book.prototype.info = function info() {
-  return `${this.title} by ${this.author}, ${this.pages} pages, ${this.read ? 'already read' : 'not read yet'}.`;
-};
+const bookModule = (() => {
+  const newBook = (title, author, pages, read) => {
+    const obj = Object.create(newBook.proto);
+    obj.title = title;
+    obj.author = author;
+    obj.pages = pages;
+    obj.read = read;
+    return obj;
+  };
 
-Book.prototype.toggleStatus = function toggleStatus() {
-  if (this.read) {
-    this.read = false;
-  } else {
-    this.read = true;
-  }
-};
+  newBook.proto = {
+    toggleStatus: function toggleStatus() { this.read = !this.read; },
+    info: function info() {
+      return `${this.title} by ${this.author}, ${this.pages} pages, ${this.read ? 'already read' : 'not read yet'}.`;
+    },
+  };
 
-// Remove Book Button Event
+  return {
+    newBook,
+  };
+})();
 
-const getBookObj = (title) => myLibrary.find((book) => book.title === `${title}`);
+// Library Module
 
-const getBookCard = (title) => document.querySelector(`.card[data-bookTitle='${title}']`);
+const libraryModule = (() => {
+  const getBook = (title) => myLibrary.find((book) => book.title === `${title}`);
 
-const removeBook = (bookTitle) => {
-  const bookCard = getBookCard(bookTitle);
-  bookCard.remove();
-  const book = getBookObj(bookTitle);
-  const bookLibraryIndex = myLibrary.indexOf(book);
-  myLibrary.splice(bookLibraryIndex, 1);
-  updateStorage();
-};
+  const addBook = (book, loadingStorage) => {
+    myLibrary.push(book);
+    if (!loadingStorage) updateStorage();
+  };
 
-const removeBtnClickEvent = (button) => {
-  button.addEventListener('click', (e) => removeBook(e.srcElement.offsetParent.dataset.booktitle));
-};
-
-// Status Switch Event
-
-const changeBookStatusEvent = (statusSwitch) => {
-  statusSwitch.addEventListener('click', (e) => {
-    const book = getBookObj(e.srcElement.offsetParent.dataset.booktitle);
-    book.toggleStatus();
+  const removeBook = (bookTitle) => {
+    const book = getBook(bookTitle);
+    const bookLibraryIndex = myLibrary.indexOf(book);
+    myLibrary.splice(bookLibraryIndex, 1);
     updateStorage();
-    const bookCard = getBookCard(book.title);
-    const statusSwitch = bookCard.lastChild.firstChild.lastChild;
+  };
+
+  return {
+    getBook,
+    addBook,
+    removeBook,
+  };
+})();
+
+// LibraryDOM Module
+
+const libraryDOMModule = (() => {
+  const _validateInput = () => titleInput.value && authorInput.value
+    && pagesInput.value && parseInt(pagesInput.value, 10)
+    && pagesInput.value.length === String(parseInt(pagesInput.value, 10)).length;
+
+  const _checkStatusInput = () => {
+    let status;
+    if (trueRadioBtn.checked) {
+      status = true;
+    }
+    if (falseRadioBtn.checked) {
+      status = false;
+    }
+    return status;
+  };
+
+  const _getBookCard = (title) => document.querySelector(`.card[data-bookTitle='${title}']`);
+
+  const _changeBookStatusEvent = (switchBtn) => {
+    switchBtn.addEventListener('click', (e) => {
+      const book = libraryModule.getBook(e.srcElement.offsetParent.dataset.booktitle);
+      book.toggleStatus();
+      updateStorage();
+      const bookCard = _getBookCard(book.title);
+      const statusSwitch = bookCard.lastChild.firstChild.lastChild;
+      statusSwitch.textContent = bookStatusText(book.read);
+      toggleBtnStyle(statusSwitch);
+    });
+  };
+
+  const _removeBtnClickEvent = (button) => {
+    button.addEventListener('click', (e) => {
+      const bookTitle = e.srcElement.offsetParent.dataset.booktitle;
+      libraryModule.removeBook(bookTitle);
+      const bookCard = _getBookCard(bookTitle);
+      bookCard.remove();
+    });
+  };
+
+  const buildBookCard = (book) => {
+    const bookCard = document.createElement('div');
+    bookCard.classList.add('card', 'm-2', 'card-width', 'bg-light');
+    bookCard.setAttribute('data-bookTitle', `${book.title}`);
+    const bookTitle = document.createElement('h3');
+    bookTitle.classList.add('text-center', 'card-header');
+    const cardBody = document.createElement('div');
+    cardBody.classList.add('card-body');
+    const bookAuthor = document.createElement('p');
+    const bookPages = document.createElement('p');
+    const cardFooter = document.createElement('div');
+    cardFooter.classList.add('card-footer');
+    const statusDiv = document.createElement('div');
+    statusDiv.classList.add('d-flex', 'justify-content-start', 'align-items-center', 'mb-3');
+    const bookStatus = document.createElement('p');
+    bookStatus.classList.add('m-0', 'me-4');
+    const statusSwitch = document.createElement('button');
+    statusSwitch.classList.add('btn', 'btn-outline-secondary', 'btn-sm', 'inactive');
+    statusSwitch.setAttribute('type', 'button');
+    _changeBookStatusEvent(statusSwitch);
+    const bookRemoveBtn = document.createElement('button');
+    bookRemoveBtn.classList.add('btn', 'btn-primary');
+    bookRemoveBtn.setAttribute('type', 'button');
+    _removeBtnClickEvent(bookRemoveBtn);
+
+    bookTitle.textContent = `Title: ${book.title}`;
+    bookAuthor.textContent = `Author: ${book.author}`;
+    bookPages.textContent = `Pages: ${book.pages}`;
+    bookStatus.textContent = 'Status:';
     statusSwitch.textContent = bookStatusText(book.read);
-    toggleBtnStyle(statusSwitch);
-  });
-};
+    if (book.read) toggleBtnStyle(statusSwitch);
+    bookRemoveBtn.textContent = 'Remove';
 
-// Book Card Builder
+    bookCard.appendChild(bookTitle);
+    cardBody.appendChild(bookAuthor);
+    cardBody.appendChild(bookPages);
+    bookCard.appendChild(cardBody);
+    bookCard.appendChild(cardFooter);
+    cardFooter.appendChild(statusDiv);
+    statusDiv.appendChild(bookStatus);
+    statusDiv.appendChild(statusSwitch);
+    cardFooter.appendChild(bookRemoveBtn);
+    bookCollectionContainer.appendChild(bookCard);
+  };
 
-const bookCardBuilder = (book) => {
-  const bookCard = document.createElement('div');
-  bookCard.classList.add('card', 'm-2', 'card-width', 'bg-light');
-  bookCard.setAttribute('data-bookTitle', `${book.title}`);
-  const bookTitle = document.createElement('h3');
-  bookTitle.classList.add('text-center', 'card-header');
-  const cardBody = document.createElement('div');
-  cardBody.classList.add('card-body');
-  const bookAuthor = document.createElement('p');
-  const bookPages = document.createElement('p');
-  const cardFooter = document.createElement('div');
-  cardFooter.classList.add('card-footer');
-  const statusDiv = document.createElement('div');
-  statusDiv.classList.add('d-flex', 'justify-content-start', 'align-items-center', 'mb-3');
-  const bookStatus = document.createElement('p');
-  bookStatus.classList.add('m-0', 'me-4');
-  const statusSwitch = document.createElement('button');
-  statusSwitch.classList.add('btn', 'btn-outline-secondary', 'btn-sm', 'inactive');
-  statusSwitch.setAttribute('type', 'button');
-  changeBookStatusEvent(statusSwitch);
-  const bookRemoveBtn = document.createElement('button');
-  bookRemoveBtn.classList.add('btn', 'btn-primary');
-  bookRemoveBtn.setAttribute('type', 'button');
-  removeBtnClickEvent(bookRemoveBtn);
+  const _clearInputs = () => {
+    titleInput.value = '';
+    authorInput.value = '';
+    pagesInput.value = '';
+    falseRadioBtn.checked = true;
+  };
 
-  bookTitle.textContent = `Title: ${book.title}`;
-  bookAuthor.textContent = `Author: ${book.author}`;
-  bookPages.textContent = `Pages: ${book.pages}`;
-  bookStatus.textContent = 'Status:';
-  statusSwitch.textContent = bookStatusText(book.read);
-  if (book.read) toggleBtnStyle(statusSwitch);
-  bookRemoveBtn.textContent = 'Remove';
+  const _toggleModal = (toggleModalLink, evName) => {
+    toggleModalLink.dispatchEvent(new CustomEvent(evName, {}));
+  };
 
-  bookCard.appendChild(bookTitle);
-  cardBody.appendChild(bookAuthor);
-  cardBody.appendChild(bookPages);
-  bookCard.appendChild(cardBody);
-  bookCard.appendChild(cardFooter);
-  cardFooter.appendChild(statusDiv);
-  statusDiv.appendChild(bookStatus);
-  statusDiv.appendChild(statusSwitch);
-  cardFooter.appendChild(bookRemoveBtn);
-  bookCollectionContainer.appendChild(bookCard);
-};
-
-// Add book button
-
-const addBookToLibrary = (book) => {
-  myLibrary.push(book);
-  updateStorage();
-  bookCardBuilder(book);
-};
-
-const validateInput = () => titleInput.value
-  && authorInput.value && pagesInput.value && parseInt(pagesInput.value, 10)
-  && pagesInput.value.length === String(parseInt(pagesInput.value, 10)).length;
-
-const checkStatusInput = () => {
-  let status;
-  if (trueRadioBtn.checked) {
-    status = true;
-  }
-  if (falseRadioBtn.checked) {
-    status = false;
-  }
-  return status;
-};
-
-const toggleModal = (toggleModalLink, evName) => {
-  toggleModalLink.dispatchEvent(new CustomEvent(evName, {}));
-};
-
-const clearInputs = () => {
-  titleInput.value = '';
-  authorInput.value = '';
-  pagesInput.value = '';
-  falseRadioBtn.checked = true;
-};
-
-const addBookBtn = () => {
-  if (validateInput()) {
-    if (feedbackMessage.parentNode === modalHeader) {
-      feedbackMessage.remove();
+  const addBook = () => {
+    if (_validateInput()) {
+      if (feedbackMessage.parentNode === modalHeader) {
+        feedbackMessage.remove();
+      }
+      const newBook = bookModule.newBook(titleInput.value, authorInput.value,
+        pagesInput.value, _checkStatusInput());
+      libraryModule.addBook(newBook, false);
+      buildBookCard(newBook);
+      _clearInputs();
+      _toggleModal(toggleModalLink, 'click');
+    } else {
+      if (feedbackMessage.parentNode === modalHeader) {
+        return;
+      }
+      modalHeader.insertBefore(feedbackMessage, modalTitle);
     }
-    const newBook = new Book(titleInput.value, authorInput.value,
-      pagesInput.value, checkStatusInput());
-    addBookToLibrary(newBook);
-    clearInputs();
-    toggleModal(toggleModalLink, 'click');
-  } else {
-    if (feedbackMessage.parentNode === modalHeader) {
-      return;
-    }
-    modalHeader.insertBefore(feedbackMessage, modalTitle);
-  }
-};
+  };
+
+  return {
+    buildBookCard,
+    addBook,
+  };
+})();
 
 // Load Content
 
 const loadStorageLibrary = (storedLibrary) => {
   storedLibrary.forEach((book) => {
-    const newBook = new Book(book.title, book.author,
+    const newBook = bookModule.newBook(book.title, book.author,
       book.pages, book.read);
-    addBookToLibrary(newBook);
+    libraryModule.addBook(newBook, true);
+    libraryDOMModule.buildBookCard(newBook);
   });
 };
 
 const seedLibrary = () => {
   // Initial Library
-  const theHobbit = new Book('The Hobbit', 'J.R.R. Tolkien', 295, false);
-  const greatGatsby = new Book('The Great Gatsby', 'Author 1', 400, true);
-  const mobyDick = new Book('Moby Dick', 'Author 2', 500, false);
-  const harryPotter = new Book('Harry Potter', 'J. K. Rowling', 600, true);
-  const greatExpectations = new Book('Great Expectations', 'Charles Dickens', 600, true);
+  const seedBookLibrary = [bookModule.newBook('The Hobbit', 'J.R.R. Tolkien', 295, false),
+    bookModule.newBook('The Great Gatsby', 'Author 1', 400, true),
+    bookModule.newBook('Moby Dick', 'Author 2', 500, false),
+    bookModule.newBook('Harry Potter', 'J. K. Rowling', 600, true),
+    bookModule.newBook('Great Expectations', 'Charles Dickens', 600, true)];
 
-  addBookToLibrary(theHobbit);
-  addBookToLibrary(greatGatsby);
-  addBookToLibrary(mobyDick);
-  addBookToLibrary(harryPotter);
-  addBookToLibrary(greatExpectations);
+  seedBookLibrary.forEach((book) => {
+    libraryModule.addBook(book, false);
+    libraryDOMModule.buildBookCard(book);
+  });
 };
 
 if (storageAvailable('localStorage')) {
   if (localStorage.length === 0) {
-    if (myLibrary.length === 0) { seedLibrary(); }
+    if (myLibrary.length === 0) {
+      seedLibrary();
+    }
     updateStorage();
   } else {
     loadStorageLibrary(localStorage.getObj('myLibrary'));
@@ -244,4 +264,4 @@ if (storageAvailable('localStorage')) {
   seedLibrary();
 }
 
-addBookButton.addEventListener('click', addBookBtn);
+addBookButton.addEventListener('click', libraryDOMModule.addBook);
