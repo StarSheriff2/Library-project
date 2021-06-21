@@ -13,21 +13,17 @@ function storageAvailable(type) {
     return true;
   } catch (e) {
     return e instanceof DOMException && (
-        // everything except Firefox
-        e.code === 22
-        // Firefox
-        ||
-        e.code === 1014
-        // test name field too, because code might not be present
-        // everything except Firefox
-        ||
-        e.name === 'QuotaExceededError'
-        // Firefox
-        ||
-        e.name === 'NS_ERROR_DOM_QUOTA_REACHED')
-      // acknowledge QuotaExceededError only if there's something already stored
-      &&
-      (storage && storage.length !== 0);
+      // everything except Firefox
+      e.code === 22
+      // Firefox
+      || e.code === 1014
+      // test name field too, because code might not be present
+      // everything except Firefox
+      || e.name === 'QuotaExceededError'
+      // Firefox
+      || e.name === 'NS_ERROR_DOM_QUOTA_REACHED')
+    // acknowledge QuotaExceededError only if there's something already stored
+    && (storage && storage.length !== 0);
   }
 }
 
@@ -63,10 +59,8 @@ const toggleBtnStyle = (btn) => btn.classList.toggle('active');
 // Book Module
 
 const bookModule = (() => {
-  'use strict';
-
   const newBook = (title, author, pages, read) => {
-    let obj = Object.create(newBook.proto);
+    const obj = Object.create(newBook.proto);
     obj.title = title;
     obj.author = author;
     obj.pages = pages;
@@ -75,14 +69,14 @@ const bookModule = (() => {
   };
 
   newBook.proto = {
-    toggleStatus: function toggleStatus() { this.read = !this.read },
+    toggleStatus: function toggleStatus() { this.read = !this.read; },
     info: function info() {
       return `${this.title} by ${this.author}, ${this.pages} pages, ${this.read ? 'already read' : 'not read yet'}.`;
-    }
+    },
   };
 
   return {
-    newBook
+    newBook,
   };
 })();
 
@@ -174,9 +168,9 @@ const addBookToLibrary = (book, loadingStorage) => {
   bookCardBuilder(book);
 };
 
-const validateInput = () => titleInput.value &&
-  authorInput.value && pagesInput.value && parseInt(pagesInput.value, 10) &&
-  pagesInput.value.length === String(parseInt(pagesInput.value, 10)).length;
+const validateInput = () => titleInput.value && authorInput.value
+  && pagesInput.value && parseInt(pagesInput.value, 10)
+  && pagesInput.value.length === String(parseInt(pagesInput.value, 10)).length;
 
 const checkStatusInput = () => {
   let status;
