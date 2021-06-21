@@ -160,13 +160,19 @@ const bookCardBuilder = (book) => {
   bookCollectionContainer.appendChild(bookCard);
 };
 
-// Add book button
+// Library Module
 
-const addBookToLibrary = (book, loadingStorage) => {
-  myLibrary.push(book);
-  if (!loadingStorage) updateStorage();
-  bookCardBuilder(book);
-};
+const libraryModule = (() => {
+  const addBook = (book, loadingStorage) => {
+    myLibrary.push(book);
+    if (!loadingStorage) updateStorage();
+    bookCardBuilder(book);
+  };
+
+  return {
+    addBook,
+  };
+})();
 
 const validateInput = () => titleInput.value && authorInput.value
   && pagesInput.value && parseInt(pagesInput.value, 10)
@@ -201,7 +207,7 @@ const addBookBtn = () => {
     }
     const newBook = bookModule.newBook(titleInput.value, authorInput.value,
       pagesInput.value, checkStatusInput());
-    addBookToLibrary(newBook, false);
+      libraryModule.addBook(newBook, false);
     clearInputs();
     toggleModal(toggleModalLink, 'click');
   } else {
@@ -218,7 +224,7 @@ const loadStorageLibrary = (storedLibrary) => {
   storedLibrary.forEach((book) => {
     const newBook = bookModule.newBook(book.title, book.author,
       book.pages, book.read);
-    addBookToLibrary(newBook, true);
+      libraryModule.addBook(newBook, true);
   });
 };
 
@@ -230,11 +236,11 @@ const seedLibrary = () => {
   const harryPotter = bookModule.newBook('Harry Potter', 'J. K. Rowling', 600, true);
   const greatExpectations = bookModule.newBook('Great Expectations', 'Charles Dickens', 600, true);
 
-  addBookToLibrary(theHobbit, false);
-  addBookToLibrary(greatGatsby, false);
-  addBookToLibrary(mobyDick, false);
-  addBookToLibrary(harryPotter, false);
-  addBookToLibrary(greatExpectations, false);
+  libraryModule.addBook(theHobbit, false);
+  libraryModule.addBook(greatGatsby, false);
+  libraryModule.addBook(mobyDick, false);
+  libraryModule.addBook(harryPotter, false);
+  libraryModule.addBook(greatExpectations, false);
 };
 
 if (storageAvailable('localStorage')) {
