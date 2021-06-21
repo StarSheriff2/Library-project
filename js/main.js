@@ -207,7 +207,7 @@ const addBookBtn = () => {
     }
     const newBook = bookModule.newBook(titleInput.value, authorInput.value,
       pagesInput.value, checkStatusInput());
-      libraryModule.addBook(newBook, false);
+    libraryModule.addBook(newBook, false);
     clearInputs();
     toggleModal(toggleModalLink, 'click');
   } else {
@@ -224,7 +224,7 @@ const loadStorageLibrary = (storedLibrary) => {
   storedLibrary.forEach((book) => {
     const newBook = bookModule.newBook(book.title, book.author,
       book.pages, book.read);
-      libraryModule.addBook(newBook, true);
+    libraryModule.addBook(newBook, true);
   });
 };
 
