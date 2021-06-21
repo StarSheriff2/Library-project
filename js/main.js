@@ -60,25 +60,31 @@ const bookStatusText = (status) => `${status ? 'Already Read' : 'Not Read'}`;
 
 const toggleBtnStyle = (btn) => btn.classList.toggle('active');
 
-// Book Constructor and Prototype Property
-function Book(title, author, pages, read) {
-  this.title = title;
-  this.author = author;
-  this.pages = pages;
-  this.read = read;
-}
+// Book Module
 
-Book.prototype.info = function info() {
-  return `${this.title} by ${this.author}, ${this.pages} pages, ${this.read ? 'already read' : 'not read yet'}.`;
-};
+const bookModule = (() => {
+  'use strict';
 
-Book.prototype.toggleStatus = function toggleStatus() {
-  if (this.read) {
-    this.read = false;
-  } else {
-    this.read = true;
-  }
-};
+  const newBook = (title, author, pages, read) => {
+    let obj = Object.create(newBook.proto);
+    obj.title = title;
+    obj.author = author;
+    obj.pages = pages;
+    obj.read = read;
+    return obj;
+  };
+
+  newBook.proto = {
+    toggleStatus: function toggleStatus() { this.read = !this.read },
+    info: function info() {
+      return `${this.title} by ${this.author}, ${this.pages} pages, ${this.read ? 'already read' : 'not read yet'}.`;
+    }
+  };
+
+  return {
+    newBook
+  };
+})();
 
 // Remove Book Button Event
 
@@ -199,7 +205,7 @@ const addBookBtn = () => {
     if (feedbackMessage.parentNode === modalHeader) {
       feedbackMessage.remove();
     }
-    const newBook = new Book(titleInput.value, authorInput.value,
+    const newBook = bookModule.newBook(titleInput.value, authorInput.value,
       pagesInput.value, checkStatusInput());
     addBookToLibrary(newBook, false);
     clearInputs();
@@ -216,7 +222,7 @@ const addBookBtn = () => {
 
 const loadStorageLibrary = (storedLibrary) => {
   storedLibrary.forEach((book) => {
-    const newBook = new Book(book.title, book.author,
+    const newBook = bookModule.newBook(book.title, book.author,
       book.pages, book.read);
     addBookToLibrary(newBook, true);
   });
@@ -224,11 +230,11 @@ const loadStorageLibrary = (storedLibrary) => {
 
 const seedLibrary = () => {
   // Initial Library
-  const theHobbit = new Book('The Hobbit', 'J.R.R. Tolkien', 295, false);
-  const greatGatsby = new Book('The Great Gatsby', 'Author 1', 400, true);
-  const mobyDick = new Book('Moby Dick', 'Author 2', 500, false);
-  const harryPotter = new Book('Harry Potter', 'J. K. Rowling', 600, true);
-  const greatExpectations = new Book('Great Expectations', 'Charles Dickens', 600, true);
+  const theHobbit = bookModule.newBook('The Hobbit', 'J.R.R. Tolkien', 295, false);
+  const greatGatsby = bookModule.newBook('The Great Gatsby', 'Author 1', 400, true);
+  const mobyDick = bookModule.newBook('Moby Dick', 'Author 2', 500, false);
+  const harryPotter = bookModule.newBook('Harry Potter', 'J. K. Rowling', 600, true);
+  const greatExpectations = bookModule.newBook('Great Expectations', 'Charles Dickens', 600, true);
 
   addBookToLibrary(theHobbit, false);
   addBookToLibrary(greatGatsby, false);
