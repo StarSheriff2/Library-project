@@ -80,27 +80,29 @@ const bookModule = (() => {
   };
 })();
 
-// Remove Book Button Event
+// Library Module
 
-/* const getBookCard = (title) => document.querySelector(`.card[data-bookTitle='${title}']`); */
+const libraryModule = (() => {
+  const getBook = (title) => myLibrary.find((book) => book.title === `${title}`);
 
-/* const removeBtnClickEvent = (button) => {
-  button.addEventListener('click', (e) => libraryModule.removeBook(e.srcElement.offsetParent.dataset.booktitle));
-}; */
+  const addBook = (book, loadingStorage) => {
+    myLibrary.push(book);
+    if (!loadingStorage) updateStorage();
+  };
 
-// Status Switch Event
-
-/* const changeBookStatusEvent = (statusSwitch) => {
-  statusSwitch.addEventListener('click', (e) => {
-    const book = libraryModule.getBook(e.srcElement.offsetParent.dataset.booktitle);
-    book.toggleStatus();
+  const removeBook = (bookTitle) => {
+    const book = getBook(bookTitle);
+    const bookLibraryIndex = myLibrary.indexOf(book);
+    myLibrary.splice(bookLibraryIndex, 1);
     updateStorage();
-    const bookCard = getBookCard(book.title);
-    const statusSwitch = bookCard.lastChild.firstChild.lastChild;
-    statusSwitch.textContent = bookStatusText(book.read);
-    toggleBtnStyle(statusSwitch);
-  });
-}; */
+  };
+
+  return {
+    getBook,
+    addBook,
+    removeBook,
+  };
+})();
 
 // LibraryDOM Module
 
@@ -120,14 +122,14 @@ const libraryDOMModule = (() => {
     return status;
   };
 
-  const getBookCard = (title) => document.querySelector(`.card[data-bookTitle='${title}']`);
+  const _getBookCard = (title) => document.querySelector(`.card[data-bookTitle='${title}']`);
 
   const _changeBookStatusEvent = (switchBtn) => {
     switchBtn.addEventListener('click', (e) => {
       const book = libraryModule.getBook(e.srcElement.offsetParent.dataset.booktitle);
       book.toggleStatus();
       updateStorage();
-      const bookCard = getBookCard(book.title);
+      const bookCard = _getBookCard(book.title);
       const statusSwitch = bookCard.lastChild.firstChild.lastChild;
       statusSwitch.textContent = bookStatusText(book.read);
       toggleBtnStyle(statusSwitch);
@@ -135,7 +137,12 @@ const libraryDOMModule = (() => {
   };
 
   const _removeBtnClickEvent = (button) => {
-    button.addEventListener('click', (e) => libraryModule.removeBook(e.srcElement.offsetParent.dataset.booktitle));
+    button.addEventListener('click', (e) => {
+      const bookTitle = e.srcElement.offsetParent.dataset.booktitle;
+      libraryModule.removeBook(bookTitle);
+      const bookCard = _getBookCard(bookTitle);
+      bookCard.remove();
+    });
   };
 
   const buildBookCard = (book) => {
@@ -214,35 +221,8 @@ const libraryDOMModule = (() => {
   };
 
   return {
-    getBookCard,
     buildBookCard,
     addBook,
-  };
-})();
-
-// Library Module
-
-const libraryModule = (() => {
-  const getBook = (title) => myLibrary.find((book) => book.title === `${title}`);
-
-  const addBook = (book, loadingStorage) => {
-    myLibrary.push(book);
-    if (!loadingStorage) updateStorage();
-  };
-
-  const removeBook = (bookTitle) => {
-    const bookCard = libraryDOMModule.getBookCard(bookTitle);
-    bookCard.remove();
-    const book = getBook(bookTitle);
-    const bookLibraryIndex = myLibrary.indexOf(book);
-    myLibrary.splice(bookLibraryIndex, 1);
-    updateStorage();
-  };
-
-  return {
-    getBook,
-    addBook,
-    removeBook,
   };
 })();
 
