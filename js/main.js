@@ -43,16 +43,14 @@ const bookModule = (() => {
 const libraryModule = (() => {
   const getBook = (title) => myLibrary.find((book) => book.title === `${title}`);
 
-  const addBook = (book, loadingStorage) => {
+  const addBook = (book) => {
     myLibrary.push(book);
-    //if (!loadingStorage) storageModule.updateStorage();
   };
 
   const removeBook = (bookTitle) => {
     const book = getBook(bookTitle);
     const bookLibraryIndex = myLibrary.indexOf(book);
     myLibrary.splice(bookLibraryIndex, 1);
-    //storageModule.updateStorage();
   };
 
   return {
@@ -90,7 +88,6 @@ const libraryDOMModule = (() => {
     switchBtn.addEventListener('click', (e) => {
       const book = libraryModule.getBook(e.srcElement.offsetParent.dataset.booktitle);
       book.toggleStatus();
-      //storageModule.updateStorage();
       const bookCard = _getBookCard(book.title);
       const statusSwitch = bookCard.lastChild.firstChild.lastChild;
       statusSwitch.textContent = _bookStatusText(book.read);
@@ -188,6 +185,21 @@ const libraryDOMModule = (() => {
   };
 })();
 
+// Initial Library
+
+const seedLibrary = () => {
+  const seedBookLibrary = [bookModule.newBook('The Hobbit', 'J.R.R. Tolkien', 295, false),
+    bookModule.newBook('The Great Gatsby', 'Author 1', 400, true),
+    bookModule.newBook('Moby Dick', 'Author 2', 500, false),
+    bookModule.newBook('Harry Potter', 'J. K. Rowling', 600, true),
+    bookModule.newBook('Great Expectations', 'Charles Dickens', 600, true)];
+
+  seedBookLibrary.forEach((book) => {
+    libraryModule.addBook(book, false);
+    libraryDOMModule.buildBookCard(book);
+  });
+};
+
 // Storage Module
 
 const storageModule = (() => {
@@ -226,7 +238,7 @@ const storageModule = (() => {
     });
   };
 
-  const updateStorage = () => localStorage.setObj('myLibrary', myLibrary);
+  const _updateStorage = () => localStorage.setObj('myLibrary', myLibrary);
 
   const _setStorageAccessMethods = () => {
     Storage.prototype.setObj = function setObj(key, obj) {
@@ -238,30 +250,29 @@ const storageModule = (() => {
     };
 
     const callback = (mutationsList) => {
-      for(const mutation of mutationsList) {
+      mutationsList.forEach((mutation) => {
         if (mutation.type === 'attributes') {
-          updateStorage();
-        }
-        else if (mutation.type === 'childList') {
+          _updateStorage();
+        } else if (mutation.type === 'childList') {
           if (mutation.addedNodes[0]) {
-            _listenForChanges(mutation.addedNodes[0].lastChild.firstChild.lastChild);
+            localStorage.listenForChanges(mutation.addedNodes[0].lastChild.firstChild.lastChild);
           }
-          updateStorage();
+          _updateStorage();
         }
-      }
+      });
     };
 
     Storage.prototype.observer = new MutationObserver(callback);
-  };
 
-  const _listenForChanges = (element) => {
-    let config;
-    if (element.constructor == HTMLButtonElement) {
-      config = { attributes: true };
-    } else {
-      config = { childList: true };
-    }
-    localStorage.observer.observe(element, config);
+    Storage.prototype.listenForChanges = (element) => {
+      let config;
+      if (element.constructor === HTMLButtonElement) {
+        config = { attributes: true };
+      } else {
+        config = { childList: true };
+      }
+      localStorage.observer.observe(element, config);
+    };
   };
 
   const load = () => {
@@ -271,7 +282,7 @@ const storageModule = (() => {
         if (myLibrary.length === 0) {
           seedLibrary();
         }
-        updateStorage();
+        _updateStorage();
       } else {
         _loadStorageLibrary(localStorage.getObj('myLibrary'));
       }
@@ -279,31 +290,16 @@ const storageModule = (() => {
       seedLibrary();
     }
 
-    let bookStatusBtns = document.querySelectorAll('.switch-btn');
-    bookStatusBtns.forEach(btn => _listenForChanges(btn));
-    _listenForChanges(bookCollectionContainer);
+    const bookStatusBtns = document.querySelectorAll('.switch-btn');
+    bookStatusBtns.forEach((btn) => localStorage.listenForChanges(btn));
+    localStorage.listenForChanges(bookCollectionContainer);
     addBookButton.addEventListener('click', libraryDOMModule.addBook);
   };
 
   return {
-    updateStorage,
     load,
   };
 })();
-
-const seedLibrary = () => {
-  // Initial Library
-  const seedBookLibrary = [bookModule.newBook('The Hobbit', 'J.R.R. Tolkien', 295, false),
-    bookModule.newBook('The Great Gatsby', 'Author 1', 400, true),
-    bookModule.newBook('Moby Dick', 'Author 2', 500, false),
-    bookModule.newBook('Harry Potter', 'J. K. Rowling', 600, true),
-    bookModule.newBook('Great Expectations', 'Charles Dickens', 600, true)];
-
-  seedBookLibrary.forEach((book) => {
-    libraryModule.addBook(book, false);
-    libraryDOMModule.buildBookCard(book);
-  });
-};
 
 // Load Page
 
