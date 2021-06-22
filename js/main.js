@@ -52,10 +52,6 @@ feedbackMessage.textContent = 'Please check all fields have been completed.';
 feedbackMessage.style.width = '100%';
 feedbackMessage.classList.add('text-center', 'bg-danger');
 
-const bookStatusText = (status) => `${status ? 'Already Read' : 'Not Read'}`;
-
-const toggleBtnStyle = (btn) => btn.classList.toggle('active');
-
 // Book Module
 
 const bookModule = (() => {
@@ -124,6 +120,10 @@ const libraryDOMModule = (() => {
 
   const _getBookCard = (title) => document.querySelector(`.card[data-bookTitle='${title}']`);
 
+  const _bookStatusText = (status) => `${status ? 'Already Read' : 'Not Read'}`;
+
+  const _toggleBtnStyle = (btn) => btn.classList.toggle('active');
+
   const _changeBookStatusEvent = (switchBtn) => {
     switchBtn.addEventListener('click', (e) => {
       const book = libraryModule.getBook(e.srcElement.offsetParent.dataset.booktitle);
@@ -131,8 +131,8 @@ const libraryDOMModule = (() => {
       updateStorage();
       const bookCard = _getBookCard(book.title);
       const statusSwitch = bookCard.lastChild.firstChild.lastChild;
-      statusSwitch.textContent = bookStatusText(book.read);
-      toggleBtnStyle(statusSwitch);
+      statusSwitch.textContent = _bookStatusText(book.read);
+      _toggleBtnStyle(statusSwitch);
     });
   };
 
@@ -174,8 +174,8 @@ const libraryDOMModule = (() => {
     bookAuthor.textContent = `Author: ${book.author}`;
     bookPages.textContent = `Pages: ${book.pages}`;
     bookStatus.textContent = 'Status:';
-    statusSwitch.textContent = bookStatusText(book.read);
-    if (book.read) toggleBtnStyle(statusSwitch);
+    statusSwitch.textContent = _bookStatusText(book.read);
+    if (book.read) _toggleBtnStyle(statusSwitch);
     bookRemoveBtn.textContent = 'Remove';
 
     bookCard.appendChild(bookTitle);
