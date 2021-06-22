@@ -1,42 +1,4 @@
 const myLibrary = [];
-
-// Check Browser for LocalStorage Support and Availability
-// Code source: https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API/Using_the_Web_Storage_API
-
-function storageAvailable(type) {
-  let storage;
-  try {
-    storage = window[type];
-    const x = '__storage_test__';
-    storage.setItem(x, x);
-    storage.removeItem(x);
-    return true;
-  } catch (e) {
-    return e instanceof DOMException && (
-      // everything except Firefox
-      e.code === 22
-      // Firefox
-      || e.code === 1014
-      // test name field too, because code might not be present
-      // everything except Firefox
-      || e.name === 'QuotaExceededError'
-      // Firefox
-      || e.name === 'NS_ERROR_DOM_QUOTA_REACHED')
-    // acknowledge QuotaExceededError only if there's something already stored
-    && (storage && storage.length !== 0);
-  }
-}
-
-Storage.prototype.setObj = function setObj(key, obj) {
-  return this.setItem(key, JSON.stringify(obj));
-};
-
-Storage.prototype.getObj = function getObj(key) {
-  return JSON.parse(this.getItem(key));
-};
-
-const updateStorage = () => localStorage.setObj('myLibrary', myLibrary);
-
 const bookCollectionContainer = document.querySelector('.book-collection-container');
 const modalTitle = document.querySelector('.modal-title');
 const feedbackMessage = document.createElement('div');
@@ -51,10 +13,6 @@ const toggleModalLink = document.querySelector('#toggleModalLink');
 feedbackMessage.textContent = 'Please check all fields have been completed.';
 feedbackMessage.style.width = '100%';
 feedbackMessage.classList.add('text-center', 'bg-danger');
-
-const bookStatusText = (status) => `${status ? 'Already Read' : 'Not Read'}`;
-
-const toggleBtnStyle = (btn) => btn.classList.toggle('active');
 
 // Book Module
 
@@ -85,16 +43,14 @@ const bookModule = (() => {
 const libraryModule = (() => {
   const getBook = (title) => myLibrary.find((book) => book.title === `${title}`);
 
-  const addBook = (book, loadingStorage) => {
+  const addBook = (book) => {
     myLibrary.push(book);
-    if (!loadingStorage) updateStorage();
   };
 
   const removeBook = (bookTitle) => {
     const book = getBook(bookTitle);
     const bookLibraryIndex = myLibrary.indexOf(book);
     myLibrary.splice(bookLibraryIndex, 1);
-    updateStorage();
   };
 
   return {
@@ -124,15 +80,18 @@ const libraryDOMModule = (() => {
 
   const _getBookCard = (title) => document.querySelector(`.card[data-bookTitle='${title}']`);
 
+  const _bookStatusText = (status) => `${status ? 'Already Read' : 'Not Read'}`;
+
+  const _toggleBtnStyle = (btn) => btn.classList.toggle('active');
+
   const _changeBookStatusEvent = (switchBtn) => {
     switchBtn.addEventListener('click', (e) => {
       const book = libraryModule.getBook(e.srcElement.offsetParent.dataset.booktitle);
       book.toggleStatus();
-      updateStorage();
       const bookCard = _getBookCard(book.title);
       const statusSwitch = bookCard.lastChild.firstChild.lastChild;
-      statusSwitch.textContent = bookStatusText(book.read);
-      toggleBtnStyle(statusSwitch);
+      statusSwitch.textContent = _bookStatusText(book.read);
+      _toggleBtnStyle(statusSwitch);
     });
   };
 
@@ -162,7 +121,7 @@ const libraryDOMModule = (() => {
     const bookStatus = document.createElement('p');
     bookStatus.classList.add('m-0', 'me-4');
     const statusSwitch = document.createElement('button');
-    statusSwitch.classList.add('btn', 'btn-outline-secondary', 'btn-sm', 'inactive');
+    statusSwitch.classList.add('btn', 'btn-outline-secondary', 'btn-sm', 'inactive', 'switch-btn');
     statusSwitch.setAttribute('type', 'button');
     _changeBookStatusEvent(statusSwitch);
     const bookRemoveBtn = document.createElement('button');
@@ -174,8 +133,8 @@ const libraryDOMModule = (() => {
     bookAuthor.textContent = `Author: ${book.author}`;
     bookPages.textContent = `Pages: ${book.pages}`;
     bookStatus.textContent = 'Status:';
-    statusSwitch.textContent = bookStatusText(book.read);
-    if (book.read) toggleBtnStyle(statusSwitch);
+    statusSwitch.textContent = _bookStatusText(book.read);
+    if (book.read) _toggleBtnStyle(statusSwitch);
     bookRemoveBtn.textContent = 'Remove';
 
     bookCard.appendChild(bookTitle);
@@ -226,19 +185,9 @@ const libraryDOMModule = (() => {
   };
 })();
 
-// Load Content
-
-const loadStorageLibrary = (storedLibrary) => {
-  storedLibrary.forEach((book) => {
-    const newBook = bookModule.newBook(book.title, book.author,
-      book.pages, book.read);
-    libraryModule.addBook(newBook, true);
-    libraryDOMModule.buildBookCard(newBook);
-  });
-};
+// Initial Library
 
 const seedLibrary = () => {
-  // Initial Library
   const seedBookLibrary = [bookModule.newBook('The Hobbit', 'J.R.R. Tolkien', 295, false),
     bookModule.newBook('The Great Gatsby', 'Author 1', 400, true),
     bookModule.newBook('Moby Dick', 'Author 2', 500, false),
@@ -251,17 +200,107 @@ const seedLibrary = () => {
   });
 };
 
-if (storageAvailable('localStorage')) {
-  if (localStorage.length === 0) {
-    if (myLibrary.length === 0) {
+// Storage Module
+
+const storageModule = (() => {
+  // Check Browser for LocalStorage Support and Availability
+  // Code source: https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API/Using_the_Web_Storage_API
+  const _storageAvailable = (type) => {
+    let storage;
+    try {
+      storage = window[type];
+      const x = '__storage_test__';
+      storage.setItem(x, x);
+      storage.removeItem(x);
+      return true;
+    } catch (e) {
+      return e instanceof DOMException && (
+        // everything except Firefox
+        e.code === 22
+        // Firefox
+        || e.code === 1014
+        // test name field too, because code might not be present
+        // everything except Firefox
+        || e.name === 'QuotaExceededError'
+        // Firefox
+        || e.name === 'NS_ERROR_DOM_QUOTA_REACHED')
+      // acknowledge QuotaExceededError only if there's something already stored
+      && (storage && storage.length !== 0);
+    }
+  };
+
+  const _loadStorageLibrary = (storedLibrary) => {
+    storedLibrary.forEach((book) => {
+      const newBook = bookModule.newBook(book.title, book.author,
+        book.pages, book.read);
+      libraryModule.addBook(newBook, true);
+      libraryDOMModule.buildBookCard(newBook);
+    });
+  };
+
+  const _updateStorage = () => localStorage.setObj('myLibrary', myLibrary);
+
+  const _setStorageAccessMethods = () => {
+    Storage.prototype.setObj = function setObj(key, obj) {
+      return this.setItem(key, JSON.stringify(obj));
+    };
+
+    Storage.prototype.getObj = function getObj(key) {
+      return JSON.parse(this.getItem(key));
+    };
+
+    const callback = (mutationsList) => {
+      mutationsList.forEach((mutation) => {
+        if (mutation.type === 'attributes') {
+          _updateStorage();
+        } else if (mutation.type === 'childList') {
+          if (mutation.addedNodes[0]) {
+            localStorage.listenForChanges(mutation.addedNodes[0].lastChild.firstChild.lastChild);
+          }
+          _updateStorage();
+        }
+      });
+    };
+
+    Storage.prototype.observer = new MutationObserver(callback);
+
+    Storage.prototype.listenForChanges = (element) => {
+      let config;
+      if (element.constructor === HTMLButtonElement) {
+        config = { attributes: true };
+      } else {
+        config = { childList: true };
+      }
+      localStorage.observer.observe(element, config);
+    };
+  };
+
+  const load = () => {
+    if (_storageAvailable('localStorage')) {
+      _setStorageAccessMethods();
+      if (localStorage.length === 0) {
+        if (myLibrary.length === 0) {
+          seedLibrary();
+        }
+        _updateStorage();
+      } else {
+        _loadStorageLibrary(localStorage.getObj('myLibrary'));
+      }
+    } else {
       seedLibrary();
     }
-    updateStorage();
-  } else {
-    loadStorageLibrary(localStorage.getObj('myLibrary'));
-  }
-} else {
-  seedLibrary();
-}
 
-addBookButton.addEventListener('click', libraryDOMModule.addBook);
+    const bookStatusBtns = document.querySelectorAll('.switch-btn');
+    bookStatusBtns.forEach((btn) => localStorage.listenForChanges(btn));
+    localStorage.listenForChanges(bookCollectionContainer);
+    addBookButton.addEventListener('click', libraryDOMModule.addBook);
+  };
+
+  return {
+    load,
+  };
+})();
+
+// Load Page
+
+storageModule.load();
